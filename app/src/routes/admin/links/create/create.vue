@@ -1,5 +1,3 @@
-
-
 <template>
 	<admin-view>
 		<h1>Create Link</h1>
@@ -35,31 +33,7 @@
 						</n-button>
 					</n-form-item>
 				</n-row>
-				 <!-- <n-form-item path="android_url" label="Android URL" style="flex-grow: 1">
-					<n-input
-						v-model:value="model.android_url_raw"
-						class="url-input"
-						pair
-						clearable
-						separator="://"
-						:placeholder="['Protocol', 'Web Address']"
-						@change="handleAndroidUrlUpdate"
-						@update:value="handleAndroidUrlUpdate"
-					></n-input>
-				</n-form-item>
-				<n-form-item path="ios_url" label="iOS URL" style="flex-grow: 1">
-					<n-input
-						v-model:value="model.ios_url_raw"
-						class="url-input"
-						pair
-						clearable
-						separator="://"
-						:placeholder="['Protocol', 'Web Address']"
-						@change="handleIosUrlUpdate"
-						@update:value="handleIosUrlUpdate"
-					></n-input>
-				</n-form-item> -->
-                                <n-row>
+				<n-row>
 					<n-form-item path="start_date" label="Start Date">
 						<n-date-picker v-model:value="model.start_date" type="date" placeholder="Select Start Date" />
 					</n-form-item>
@@ -81,6 +55,7 @@
 		</n-spin>
 	</admin-view>
 </template>
+
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
@@ -349,6 +324,7 @@ export default defineComponent({
 	},
 });
 </script>
+
 
 <style scoped>
 .centered-form {
