@@ -89,10 +89,8 @@
       </div>
       <template #footer>
         <div>
-          <n-button type="primary" :disabled="showLoadingSpinner" @click="handleSaveEdits">Update</n-button
-          ><n-button style="margin-left: 20px" :disabled="showLoadingSpinner" @click="showEditModal = false"
-            >Cancel</n-button
-          >
+          <n-button type="primary" :disabled="showLoadingSpinner" @click="handleSaveEdits">Update</n-button>
+          <n-button style="margin-left: 20px" :disabled="showLoadingSpinner" @click="showEditModal = false">Cancel</n-button>
         </div>
       </template>
     </n-modal>
@@ -146,7 +144,7 @@ export default defineComponent({
     const formRef = ref();
     const tableRef = ref();
     const loadingRef = ref(true);
-    const links = ref<Link[] | []>([]);
+    const links = ref<Link[]>([]);
     const showEditModal = ref(false);
     const showLoadingSpinner = ref(false);
 
@@ -395,58 +393,58 @@ export default defineComponent({
     });
 
     function handleUrlUpdate(val: any) {
-			if (String(val[0]).includes('://')) {
-				const splits = String(val[0]).split('://');
-				if (splits.length > 1) {
-					modelRef.value.url_raw[0] = splits[0];
-					modelRef.value.url_raw[1] = splits.slice(1).join('://');
-				}
-			} else if (String(val[1]).includes('://')) {
-				const splits = String(val[1]).split('://');
-				if (splits.length > 1) {
-					if (!val[0] || val[0] === splits[0]) {
-						modelRef.value.url_raw[0] = splits[0];
-						modelRef.value.url_raw[1] = splits.slice(1).join('://');
-					}
-				}
-			}
-		}
+      if (String(val[0]).includes('://')) {
+        const splits = String(val[0]).split('://');
+        if (splits.length > 1) {
+          modelRef.value.url_raw[0] = splits[0];
+          modelRef.value.url_raw[1] = splits.slice(1).join('://');
+        }
+      } else if (String(val[1]).includes('://')) {
+        const splits = String(val[1]).split('://');
+        if (splits.length > 1) {
+          if (!val[0] || val[0] === splits[0]) {
+            modelRef.value.url_raw[0] = splits[0];
+            modelRef.value.url_raw[1] = splits.slice(1).join('://');
+          }
+        }
+      }
+    }
 
-		function handleAndroidUrlUpdate(val: any) {
-			if (String(val[0]).includes('://')) {
-				const splits = String(val[0]).split('://');
-				if (splits.length > 1) {
-					modelRef.value.android_url_raw[0] = splits[0];
-					modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
-				}
-			} else if (String(val[1]).includes('://')) {
-				const splits = String(val[1]).split('://');
-				if (splits.length > 1) {
-					if (!val[0] || val[0] === splits[0]) {
-						modelRef.value.android_url_raw[0] = splits[0];
-						modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
-					}
-				}
-			}
-		}
+    function handleAndroidUrlUpdate(val: any) {
+      if (String(val[0]).includes('://')) {
+        const splits = String(val[0]).split('://');
+        if (splits.length > 1) {
+          modelRef.value.android_url_raw[0] = splits[0];
+          modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
+        }
+      } else if (String(val[1]).includes('://')) {
+        const splits = String(val[1]).split('://');
+        if (splits.length > 1) {
+          if (!val[0] || val[0] === splits[0]) {
+            modelRef.value.android_url_raw[0] = splits[0];
+            modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
+          }
+        }
+      }
+    }
 
-		function handleIosUrlUpdate(val: any) {
-			if (String(val[0]).includes('://')) {
-				const splits = String(val[0]).split('://');
-				if (splits.length > 1) {
-					modelRef.value.ios_url_raw[0] = splits[0];
-					modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
-				}
-			} else if (String(val[1]).includes('://')) {
-				const splits = String(val[1]).split('://');
-				if (splits.length > 1) {
-					if (!val[0] || val[0] === splits[0]) {
-						modelRef.value.ios_url_raw[0] = splits[0];
-						modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
-					}
-				}
-			}
-		}
+    function handleIosUrlUpdate(val: any) {
+      if (String(val[0]).includes('://')) {
+        const splits = String(val[0]).split('://');
+        if (splits.length > 1) {
+          modelRef.value.ios_url_raw[0] = splits[0];
+          modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
+        }
+      } else if (String(val[1]).includes('://')) {
+        const splits = String(val[1]).split('://');
+        if (splits.length > 1) {
+          if (!val[0] || val[0] === splits[0]) {
+            modelRef.value.ios_url_raw[0] = splits[0];
+            modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
+          }
+        }
+      }
+    }
 
     return {
       loadingRef,
