@@ -5,14 +5,12 @@
       <n-form ref="formRef" class="centered-form" :model="model" :rules="rules">
         <n-form-item path="url" label="URL">
           <n-input
-            v-model:value="model.url_raw"
+            v-model:value="model.url"
             class="url-input"
-            pair
             clearable
-            separator="://"
-            :placeholder="['Protocol', 'Web Address']"
-            @change="handleUrlUpdate"
+            placeholder="Enter or paste full URL"
             @update:value="handleUrlUpdate"
+            @paste="handleUrlPaste"
           ></n-input>
         </n-form-item>
         <n-row>
@@ -102,7 +100,7 @@ export default defineComponent({
     const defaultEndDate = now + 24 * 60 * 60 * 1000;
 
     const modelRef = ref({
-      url_raw: ['', ''] as [string, string],
+      url: '',
       slug: '',
       start_date: now,
       end_date: defaultEndDate,
@@ -117,8 +115,11 @@ export default defineComponent({
               return new Error('URL is required');
             } else if (value.length > 2083) {
               return new Error('URL has to be 2083 characters or below.');
-            } else if (String(value).startsWith('://')) {
-              return new Error('Please enter a protocol.');
+            }
+            try {
+              new URL(value);
+            } catch (_) {
+              return new Error('Invalid URL format');
             }
             return true;
           },
@@ -190,7 +191,7 @@ export default defineComponent({
         const endDate = new Date(modelRef.value.end_date);
         const { data, error } = await addLink({
           user_id: appStore.supabaseSession!.user!.id,
-          url: modelRef.value.url_raw.join('://'),
+          url: modelRef.value.url,
           slug: modelRef.value.slug,
           start_date: startDate.toISOString(),
           end_date: endDate.toISOString(),
@@ -213,14 +214,28 @@ export default defineComponent({
     }
 
     function resetForm() {
-      modelRef.value.url_raw = ['', ''];
+      modelRef.value.url = '';
       modelRef.value.slug = '';
       modelRef.value.start_date = Date.now();
       modelRef.value.end_date = modelRef.value.start_date + 24 * 60 * 60 * 1000;
     }
 
-    function handleUrlUpdate(val: [string, string]) {
-      modelRef.value.url_raw = val;
+    function handleUrlUpdate(value: string) {
+      modelRef.value.url = value;
+    }
+
+    function handleUrlPaste(event: ClipboardEvent) {
+      const pastedText = event.clipboardData?.getData('text');
+      if (pastedText) {
+        event.preventDefault();
+        try {
+          const url = new URL(pastedText);
+          modelRef.value.url = url.href;
+        } catch (_) {
+          // If pasted text is not a valid URL, just use it as-is
+          modelRef.value.url = pastedText;
+        }
+      }
     }
 
     return {
@@ -232,6 +247,7 @@ export default defineComponent({
       handleGenerateSlug,
       handleCreateLink,
       handleUrlUpdate,
+      handleUrlPaste,
     };
   },
 });
@@ -252,16 +268,7 @@ export default defineComponent({
   text-align: right;
 }
 
-.url-input :deep(.n-input-wrapper):first-child {
-  flex-grow: 0;
-  width: 80px;
-}
-
-.url-input :deep(.n-input-wrapper):first-child input {
-  text-align: right;
-}
-
-.url-input :deep(.n-input-wrapper):nth-child(3) input {
-  text-align: left;
+.url-input {
+  width: 100%;
 }
 </style>
