@@ -177,7 +177,7 @@ export default defineComponent({
         return;
       }
     }
-
+    const formRef = ref(null);
     async function handleCreateLink() {
       try {
         await formRef.value.validate();
@@ -186,13 +186,17 @@ export default defineComponent({
       }
       try {
         showLoadingSpinner.value = true;
+        showLoadingSpinner.value = true;
+        const startDate = modelRef.value.start_date ? new Date(modelRef.value.start_date) : new Date();
+        const endDate = modelRef.value.end_date ? new Date(modelRef.value.end_date) : new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
         const { data, error } = await addLink({
           user_id: appStore.supabaseSession!.user!.id,
           url: modelRef.value.url_raw.join('://'),
           slug: modelRef.value.slug,
-          start_date: modelRef.value.start_date,
-          end_date: modelRef.value.end_date,
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
         });
+        
         if (error) throw error;
 
         linksStore.addLink(data);
