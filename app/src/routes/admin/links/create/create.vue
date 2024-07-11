@@ -35,10 +35,20 @@
 				</n-row>
 				<n-row>
 					<n-form-item path="start_date" label="Start Date">
-						<n-date-picker v-model:value="model.start_date" type="datetime" placeholder="Select Start Date" />
+						<n-date-picker
+							v-model:value="model.start_date"
+							type="datetime"
+							placeholder="Select Start Date"
+							format="yyyy-MM-dd HH:mm:ss"
+						/>
 					</n-form-item>
 					<n-form-item path="end_date" label="End Date" style="margin-left: 20px">
-						<n-date-picker v-model:value="model.end_date" type="datetime" placeholder="Select End Date" />
+						<n-date-picker
+							v-model:value="model.end_date"
+							type="datetime"
+							placeholder="Select End Date"
+							format="yyyy-MM-dd HH:mm:ss"
+						/>
 					</n-form-item>
 				</n-row>
 				<div style="display: flex; justify-content: center">
@@ -57,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { addLink } from '@/services/links';
 import { useAppStore } from '@/stores/appStore';
 import { useLinksStore } from '@/stores/linksStore';
