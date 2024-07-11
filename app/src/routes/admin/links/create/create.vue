@@ -78,7 +78,7 @@ import { Plus, Sync } from '@vicons/fa';
 import { customAlphabet } from 'nanoid';
 
 export default defineComponent({
-	components: { NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NDatePicker, NIcon, NButton, NRow },
+	components: { NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NDatePicker, NIcon, NButton, NRow, Plus, Sync },
 	setup() {
 		const showLoadingSpinner = ref(false);
 		const formRef = ref<any>(null);
@@ -87,7 +87,7 @@ export default defineComponent({
 		const appStore = useAppStore();
 		const linksStore = useLinksStore();
 		const message = useMessage();
-
+		
 		const now = new Date();
 		const defaultEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
@@ -156,6 +156,7 @@ export default defineComponent({
 			],
 		};
 
+		// Remove confusion with caps I caps O and l
 		const nanoid = customAlphabet('1234567890abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ', 6);
 
 		async function handleGenerateSlug() {
@@ -179,8 +180,8 @@ export default defineComponent({
 					user_id: appStore.supabaseSession!.user!.id,
 					url: modelRef.value.url_raw[0] + '://' + modelRef.value.url_raw[1],
 					slug: modelRef.value.slug,
-					start_date: modelRef.value.start_date,
-					end_date: modelRef.value.end_date,
+					start_date: modelRef.value.start_date.toISOString(),
+					end_date: modelRef.value.end_date.toISOString(),
 				});
 				if (error) throw error;
 
