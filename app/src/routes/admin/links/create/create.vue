@@ -104,8 +104,8 @@ export default defineComponent({
     const modelRef = ref({
       url_raw: ['', ''] as [string, string],
       slug: '',
-      start_date: now.toISOString(), // Convert Date to ISO string
-      end_date: defaultEndDate.toISOString(), // Convert Date to ISO string
+      start_date: now,
+      end_date: defaultEndDate,
     });
 
     const rules = {
@@ -130,7 +130,7 @@ export default defineComponent({
           required: true,
           validator(rule: any, value: any) {
             if (!value) {
-              return new Error('Slug isrequired');
+              return new Error('Slug is required');
             }
             if (value.length > 50) {
               return new Error('Slug has to be 50 characters or below.');
@@ -177,7 +177,7 @@ export default defineComponent({
         return;
       }
     }
-    const formRef = ref(null);
+
     async function handleCreateLink() {
       try {
         await formRef.value.validate();
@@ -186,17 +186,13 @@ export default defineComponent({
       }
       try {
         showLoadingSpinner.value = true;
-        showLoadingSpinner.value = true;
-        const startDate = modelRef.value.start_date ? new Date(modelRef.value.start_date) : new Date();
-        const endDate = modelRef.value.end_date ? new Date(modelRef.value.end_date) : new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
         const { data, error } = await addLink({
           user_id: appStore.supabaseSession!.user!.id,
           url: modelRef.value.url_raw.join('://'),
           slug: modelRef.value.slug,
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
+          start_date: modelRef.value.start_date.toISOString(),
+          end_date: modelRef.value.end_date.toISOString(),
         });
-        
         if (error) throw error;
 
         linksStore.addLink(data);
@@ -216,8 +212,8 @@ export default defineComponent({
     function resetForm() {
       modelRef.value.url_raw = ['', ''];
       modelRef.value.slug = '';
-      modelRef.value.start_date = now.toISOString();
-      modelRef.value.end_date = new Date(modelRef.value.start_date.getTime() + 24 * 60 * 60 * 1000).toISOString();
+      modelRef.value.start_date = new Date();
+      modelRef.value.end_date = new Date(modelRef.value.start_date.getTime() + 24 * 60 * 60 * 1000);
     }
 
     function handleUrlUpdate(val: [string, string]) {
