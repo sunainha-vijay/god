@@ -102,7 +102,7 @@ export default defineComponent({
 		const defaultEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
 		const modelRef = ref({
-			url_raw: ['', ''],
+			url_raw: ['', ''] as [string, string],
 			slug: '',
 			start_date: now,
 			end_date: defaultEndDate,
@@ -188,7 +188,7 @@ export default defineComponent({
 				showLoadingSpinner.value = true;
 				const { data, error } = await addLink({
 					user_id: appStore.supabaseSession!.user!.id,
-					url: modelRef.value.url_raw[0] + '://' + modelRef.value.url_raw[1],
+					url: modelRef.value.url_raw.join('://'),
 					slug: modelRef.value.slug,
 					start_date: modelRef.value.start_date.toISOString(),
 					end_date: modelRef.value.end_date.toISOString(),
@@ -216,7 +216,7 @@ export default defineComponent({
 			modelRef.value.end_date = new Date(modelRef.value.start_date.getTime() + 24 * 60 * 60 * 1000);
 		}
 
-		function handleUrlUpdate(val: any) {
+		function handleUrlUpdate(val: [string, string]) {
 			modelRef.value.url_raw = val;
 		}
 
