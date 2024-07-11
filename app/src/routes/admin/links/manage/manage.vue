@@ -308,7 +308,7 @@ export default defineComponent({
 		    },
 		    {
 		        title: 'ShortURL',
-		        key: 'slug',
+		        key: 'lug',
 		        render(row: any) {
 		            const fullUrl = `https://supaflare-worker.sunu.workers.dev/${row.slug}`;
 		            return h(
@@ -321,34 +321,17 @@ export default defineComponent({
 		            );
 		        },
 		    },
-		  /*  {
-		        title: 'Android URL',
-		        key: 'meta.android_url',
+		    {
+		        title: 'TTL',
+		        key: 'ttl',
 		        render(row: any) {
-		            return h(
-		                'a',
-		                {
-		                    href: row.meta.android_url,
-		                    target: '_blank',
-		                },
-		                { default: () => row.meta.android_url }
-		            );
+		            const ttl = row.end_date - row.start_date;
+		            const hours = Math.floor(ttl / 3600000);
+		            const minutes = Math.floor((ttl % 3600000) / 60000);
+		            const seconds = Math.floor((ttl % 60000) / 1000);
+		            return h('div', { default: () => `${hours}h ${minutes}m ${seconds}s` });
 		        },
 		    },
-		    {
-		        title: 'iOS URL',
-		        key: 'meta.ios_url',
-		        render(row: any) {
-		            return h(
-		                'a',
-		                {
-		                    href: row.meta.ios_url,
-		                    target: '_blank',
-		                },
-		                { default: () => row.meta.ios_url }
-		            );
-		        },
-		    },*/
 		    {
 		        title: 'Action',
 		        key: 'actions',
@@ -358,7 +341,7 @@ export default defineComponent({
 		                h(
 		                    NButton,
 		                    {
-		                        size: 'small',
+		                        size: 'mall',
 		                        onClick: () => handleEditLink(row),
 		                    },
 		                    { default: () => 'Edit' }
@@ -366,9 +349,9 @@ export default defineComponent({
 		                h(
 		                    NButton,
 		                    {
-		                        size: 'small',
+		                        size: 'mall',
 		                        type: 'error',
-		                        style: 'margin-left: 10px',
+		                        style: 'argin-left: 10px',
 		                        onClick: () => handleDeleteLink(row),
 		                    },
 		                    { default: () => 'Delete' }
