@@ -168,7 +168,7 @@ export default defineComponent({
       }),
       ios_url_raw: ['', ''],
     });
-    const editRowRef = ref();
+    const editRowRef = ref<Link | null>(null);
 
     const rules = {
       url: [
@@ -256,28 +256,30 @@ export default defineComponent({
       }
       try {
         showLoadingSpinner.value = true;
-        const { error } = await editLink(editRowRef.value, {
-          url: modelRef.value.url,
-          slug: modelRef.value.slug,
-          meta: {
-            android_url: modelRef.value.android_url,
-            ios_url: modelRef.value.ios_url,
-          },
-        });
-        if (error) throw error;
-
-        for (let link of links.value) {
-          if (link.id === editRowRef.value) {
-            link.url = modelRef.value.url;
-            link.slug = modelRef.value.slug;
-            link.meta = {
+        if (editRowRef.value) {
+          const { error } = await editLink(editRowRef.value.id, {
+            url: modelRef.value.url,
+            slug: modelRef.value.slug,
+            meta: {
               android_url: modelRef.value.android_url,
               ios_url: modelRef.value.ios_url,
-            };
+            },
+          });
+          if (error) throw error;
+
+          for (let link of links.value) {
+            if (link.id === editRowRef.value!.id) {
+              link.url = modelRef.value.url;
+              link.slug = modelRef.value.slug;
+              link.meta = {
+                android_url: modelRef.value.android_url,
+                ios_url: modelRef.value.ios_url,
+              };
+            }
           }
+          showEditModal.value = false;
+          message.success('Link has been updated successfully', { duration: messageDuration });
         }
-        showEditModal.value = false;
-        message.success('Link has been updated successfully', { duration: messageDuration });
       } catch (error) {
         console.log(error);
         message.error('Could not update link', { duration: messageDuration });
@@ -309,7 +311,7 @@ export default defineComponent({
     }
 
     async function handleEditRow(row: Link) {
-      editRowRef.value = row.id;
+      editRowRef.value = row;
       showEditModal.value = true;
       modelRef.value.url_raw = row.url.split('://');
       modelRef.value.slug = row.slug;
@@ -391,6 +393,60 @@ export default defineComponent({
         loadingRef.value = false;
       }
     });
+
+    function handleUrlUpdate(val: any) {
+			if (String(val[0]).includes('://')) {
+				const splits = String(val[0]).split('://');
+				if (splits.length > 1) {
+					modelRef.value.url_raw[0] = splits[0];
+					modelRef.value.url_raw[1] = splits.slice(1).join('://');
+				}
+			} else if (String(val[1]).includes('://')) {
+				const splits = String(val[1]).split('://');
+				if (splits.length > 1) {
+					if (!val[0] || val[0] === splits[0]) {
+						modelRef.value.url_raw[0] = splits[0];
+						modelRef.value.url_raw[1] = splits.slice(1).join('://');
+					}
+				}
+			}
+		}
+
+		function handleAndroidUrlUpdate(val: any) {
+			if (String(val[0]).includes('://')) {
+				const splits = String(val[0]).split('://');
+				if (splits.length > 1) {
+					modelRef.value.android_url_raw[0] = splits[0];
+					modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
+				}
+			} else if (String(val[1]).includes('://')) {
+				const splits = String(val[1]).split('://');
+				if (splits.length > 1) {
+					if (!val[0] || val[0] === splits[0]) {
+						modelRef.value.android_url_raw[0] = splits[0];
+						modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
+					}
+				}
+			}
+		}
+
+		function handleIosUrlUpdate(val: any) {
+			if (String(val[0]).includes('://')) {
+				const splits = String(val[0]).split('://');
+				if (splits.length > 1) {
+					modelRef.value.ios_url_raw[0] = splits[0];
+					modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
+				}
+			} else if (String(val[1]).includes('://')) {
+				const splits = String(val[1]).split('://');
+				if (splits.length > 1) {
+					if (!val[0] || val[0] === splits[0]) {
+						modelRef.value.ios_url_raw[0] = splits[0];
+						modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
+					}
+				}
+			}
+		}
 
     return {
       loadingRef,
