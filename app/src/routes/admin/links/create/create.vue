@@ -186,13 +186,16 @@ export default defineComponent({
       }
       try {
         showLoadingSpinner.value = true;
+        const startDate = modelRef.value.start_date;
+        const endDate = modelRef.value.end_date;
         const { data, error } = await addLink({
           user_id: appStore.supabaseSession!.user!.id,
           url: modelRef.value.url_raw.join('://'),
           slug: modelRef.value.slug,
-          start_date: modelRef.value.start_date.toISOString(),
-          end_date: modelRef.value.end_date.toISOString(),
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
         });
+        
         if (error) throw error;
 
         linksStore.addLink(data);
