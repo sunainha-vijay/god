@@ -38,7 +38,7 @@
                 :placeholder="['Protocol', 'Web Address']"
                 @change="handleUrlUpdate"
                 @update:value="handleUrlUpdate"
-              ></n-input>
+              />
             </n-form-item>
             <n-row>
               <n-form-item ref="slugRef" path="slug" label="Slug" style="flex-grow: 1">
@@ -68,7 +68,7 @@
                 :placeholder="['Protocol', 'Web Address']"
                 @change="handleAndroidUrlUpdate"
                 @update:value="handleAndroidUrlUpdate"
-              ></n-input>
+              />
             </n-form-item>
             <n-form-item path="ios_url" label="iOS URL" style="flex-grow: 1">
               <n-input
@@ -80,7 +80,7 @@
                 :placeholder="['Protocol', 'Web Address']"
                 @change="handleIosUrlUpdate"
                 @update:value="handleIosUrlUpdate"
-              ></n-input>
+              />
             </n-form-item>
           </n-form>
         </n-spin>
@@ -119,6 +119,7 @@ import { Link } from '@/types/global';
 import { customAlphabet } from 'nanoid';
 
 export default defineComponent({
+  name: 'ManageLinks',
   components: {
     NDataTable,
     NModal,
@@ -134,19 +135,21 @@ export default defineComponent({
     Sync,
   },
   setup() {
-    const slugRef = ref();
     const messageDuration = 5000;
     const linksStore = useLinksStore();
     const message = useMessage();
     const dialog = useDialog();
-    const formRef = ref();
-    const tableRef = ref();
+    const formRef = ref(null);
+    const tableRef = ref(null);
     const loadingRef = ref(true);
-    const links = ref<Link[] | []>([]);
+    const links = ref<Link[]>([]);
     const showEditModal = ref(false);
     const showLoadingSpinner = ref(false);
+    const slugRef = ref(null);
+    const editRowRef = ref(null);
 
-    const modelRef: any = ref({
+    const modelRef = ref({
+      id: '',
       url: computed(() => {
         if (!modelRef.value.url_raw[0] && !modelRef.value.url_raw[1]) return '';
         return modelRef.value.url_raw[0] + '://' + modelRef.value.url_raw[1];
@@ -164,7 +167,6 @@ export default defineComponent({
       }),
       ios_url_raw: ['', ''],
     });
-    const editRowRef = ref();
 
     const rules = {
       url: [
@@ -232,61 +234,9 @@ export default defineComponent({
       ],
     };
 
-    // Remove confusion with caps I caps O and l
     const nanoid = customAlphabet('1234567890abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ', 6);
 
-    async function handleGenerateSlug() {
-      modelRef.value.slug = nanoid();
-      try {
-        await slugRef.value.validate();
-      } catch (error) {
-        return;
-      }
-    }
-
-    async function handleSaveEdits() {
-      try {
-        await formRef.value.validate();
-      } catch (error) {
-        return;
-      }
-      try {
-        showLoadingSpinner.value = true;
-        const { error } = await editLink(editRowRef.value, {
-          url: modelRef.value.url,
-          slug: modelRef.value.slug,
-          meta: {
-            android_url: modelRef.value.android_url,
-            ios_url: modelRef.value.ios_url,
-          },
-        });
-        if (error) throw error;
-
-        for (let link of links.value) {
-          if (link.id === editRowRef.value.id) {
-            link.url = modelRef.value.url;
-            link.slug = modelRef.value.slug;
-            link.meta = {
-              android_url: modelRef.value.android_url,
-              ios_url: modelRef.value.ios_url,
-            };
-          }
-        }
-
-        message.success('Link successfully updated!', { duration: messageDuration });
-        showEditModal.value = false;
-      } catch (error: any) {
-        if (error.code == '23505') {
-          message.error('Slug already exists. Please change the slug.', { duration: messageDuration });
-        } else {
-          message.error('Error updating link...', { duration: messageDuration });
-        }
-      } finally {
-        showLoadingSpinner.value = false;
-      }
-    }
-
-    const columns: any = [
+    const columns = [
       {
         title: 'URL',
         key: 'url',
@@ -362,25 +312,21 @@ export default defineComponent({
       },
     ];
 
-    const rowKey = () => {
-      return 'id';
-    };
+    const rowKey = (row: Link) => row.id;
 
     const paginationReactive = reactive({
       page: 1,
       pageSize: 10,
       showSizePicker: true,
       pageSizes: [10, 20, 30],
-      onChange: (page: any) => {
+      onChange: (page: number) => {
         paginationReactive.page = page;
       },
-      onPageSizeChange: (pageSize: any) => {
+      onPageSizeChange: (pageSize: number) => {
         paginationReactive.pageSize = pageSize;
         paginationReactive.page = 1;
       },
     });
-
-    getLatestLinks();
 
     async function getLatestLinks() {
       try {
@@ -392,23 +338,63 @@ export default defineComponent({
       }
     }
 
-    function query() {
-      return new Promise((resolve) => {
-        (async () => {
-          await getLatestLinks();
-          resolve({});
-        })();
-      });
+    async function query() {
+      await getLatestLinks();
+      links.value = linksStore.links;
+      loadingRef.value = false;
     }
 
     onMounted(() => {
-      query().then(() => {
-        links.value = linksStore.links;
-        loadingRef.value = false;
-      });
+      query();
     });
 
-    function handleEditLink(row: any) {
+    function handleGenerateSlug() {
+      modelRef.value.slug = nanoid();
+      slugRef.value?.validate();
+    }
+
+    async function handleSaveEdits() {
+      try {
+        await formRef.value?.validate();
+        showLoadingSpinner.value = true;
+        const { error } = await editLink(editRowRef.value, {
+          url: modelRef.value.url,
+          slug: modelRef.value.slug,
+          meta: {
+            android_url: modelRef.value.android_url,
+            ios_url: modelRef.value.ios_url,
+          },
+        });
+        if (error) throw error;
+
+        links.value = links.value.map(link => 
+          link.id === editRowRef.value.id 
+            ? {
+                ...link,
+                url: modelRef.value.url,
+                slug: modelRef.value.slug,
+                meta: {
+                  android_url: modelRef.value.android_url,
+                  ios_url: modelRef.value.ios_url,
+                },
+              }
+            : link
+        );
+
+        message.success('Link successfully updated!', { duration: messageDuration });
+        showEditModal.value = false;
+      } catch (error: any) {
+        if (error.code === '23505') {
+          message.error('Slug already exists. Please change the slug.', { duration: messageDuration });
+        } else {
+          message.error('Error updating link...', { duration: messageDuration });
+        }
+      } finally {
+        showLoadingSpinner.value = false;
+      }
+    }
+
+    function handleEditLink(row: Link) {
       editRowRef.value = row;
       modelRef.value.id = row.id;
       modelRef.value.slug = row.slug;
@@ -435,20 +421,17 @@ export default defineComponent({
       showEditModal.value = true;
     }
 
-    function handleDeleteLink(row: any) {
+    function handleDeleteLink(row: Link) {
       dialog.warning({
         title: 'Confirm Delete Link',
-        content: 'Are you sure you want to delete this link with slug of "' + row.slug + '"?',
+        content: `Are you sure you want to delete this link with slug of "${row.slug}"?`,
         positiveText: 'Confirm',
         negativeText: 'Cancel',
-        onPositiveClick: async () => {
-          performDeleteLink(row);
-        },
-        onNegativeClick: () => {
-          return;
-        },
+        onPositiveClick: () => performDeleteLink(row),
       });
     }
+
+
 
     async function performDeleteLink(row: any) {
       try {
