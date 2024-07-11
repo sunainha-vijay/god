@@ -1,3 +1,4 @@
+
 <template>
 	<admin-view>
 		<h1>Manage Links</h1>
