@@ -78,38 +78,24 @@ import { Plus, Sync } from '@vicons/fa';
 import { customAlphabet } from 'nanoid';
 
 export default defineComponent({
-	components: { NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NDatePicker, NIcon, NButton, NRow, Plus, Sync },
+	components: { NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NDatePicker, NIcon, NButton, NRow },
 	setup() {
 		const showLoadingSpinner = ref(false);
-		const formRef = ref();
-		const slugRef = ref();
+		const formRef = ref<any>(null);
+		const slugRef = ref<any>(null);
 		const messageDuration = 5000;
 		const appStore = useAppStore();
 		const linksStore = useLinksStore();
 		const message = useMessage();
-		
+
 		const now = new Date();
 		const defaultEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-		const modelRef: any = ref({
-			url: computed(() => {
-				if (!modelRef.value.url_raw[0] && !modelRef.value.url_raw[1]) return '';
-				return modelRef.value.url_raw[0] + '://' + modelRef.value.url_raw[1];
-			}),
+		const modelRef = ref({
 			url_raw: ['', ''],
 			slug: '',
 			start_date: now,
 			end_date: defaultEndDate,
-			android_url: computed(() => {
-				if (!modelRef.value.android_url_raw[0] && !modelRef.value.android_url_raw[1]) return '';
-				return modelRef.value.android_url_raw[0] + '://' + modelRef.value.android_url_raw[1];
-			}),
-			android_url_raw: ['', ''],
-			ios_url: computed(() => {
-				if (!modelRef.value.ios_url_raw[0] && !modelRef.value.ios_url_raw[1]) return '';
-				return modelRef.value.ios_url_raw[0] + '://' + modelRef.value.ios_url_raw[1];
-			}),
-			ios_url_raw: ['', ''],
 		});
 
 		const rules = {
@@ -168,41 +154,8 @@ export default defineComponent({
 					trigger: ['change', 'blur'],
 				},
 			],
-			android_url: [
-				{
-					validator(rule: any, value: any) {
-						if (!value) {
-							return true;
-						}
-						if (value.length > 2083) {
-							return new Error('Android URL has to be 2083 characters or below.');
-						} else if (String(value).startsWith('://')) {
-							return new Error('Please enter a protocol.');
-						}
-						return true;
-					},
-					trigger: ['input', 'blur'],
-				},
-			],
-			ios_url: [
-				{
-					validator(rule: any, value: any) {
-						if (!value) {
-							return true;
-						}
-						if (value.length > 2083) {
-							return new Error('iOS URL has to be 2083 characters or below.');
-						} else if (String(value).startsWith('://')) {
-							return new Error('Please enter a protocol.');
-						}
-						return true;
-					},
-					trigger: ['input', 'blur'],
-				},
-			],
 		};
 
-		// Remove confusion with caps I caps O and l
 		const nanoid = customAlphabet('1234567890abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ', 6);
 
 		async function handleGenerateSlug() {
@@ -224,14 +177,10 @@ export default defineComponent({
 				showLoadingSpinner.value = true;
 				const { data, error } = await addLink({
 					user_id: appStore.supabaseSession!.user!.id,
-					url: modelRef.value.url,
+					url: modelRef.value.url_raw[0] + '://' + modelRef.value.url_raw[1],
 					slug: modelRef.value.slug,
 					start_date: modelRef.value.start_date,
 					end_date: modelRef.value.end_date,
-					meta: {
-						android_url: modelRef.value.android_url,
-						ios_url: modelRef.value.ios_url,
-					},
 				});
 				if (error) throw error;
 
@@ -254,62 +203,10 @@ export default defineComponent({
 			modelRef.value.slug = '';
 			modelRef.value.start_date = new Date();
 			modelRef.value.end_date = new Date(modelRef.value.start_date.getTime() + 24 * 60 * 60 * 1000);
-			modelRef.value.android_url_raw = ['', ''];
-			modelRef.value.ios_url_raw = ['', ''];
 		}
 
 		function handleUrlUpdate(val: any) {
-			if (String(val[0]).includes('://')) {
-				const splits = String(val[0]).split('://');
-				if (splits.length > 1) {
-					modelRef.value.url_raw[0] = splits[0];
-					modelRef.value.url_raw[1] = splits.slice(1).join('://');
-				}
-			} else if (String(val[1]).includes('://')) {
-				const splits = String(val[1]).split('://');
-				if (splits.length > 1) {
-					if (!val[0] || val[0] === splits[0]) {
-						modelRef.value.url_raw[0] = splits[0];
-						modelRef.value.url_raw[1] = splits.slice(1).join('://');
-					}
-				}
-			}
-		}
-
-		function handleAndroidUrlUpdate(val: any) {
-			if (String(val[0]).includes('://')) {
-				const splits = String(val[0]).split('://');
-				if (splits.length > 1) {
-					modelRef.value.android_url_raw[0] = splits[0];
-					modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
-				}
-			} else if (String(val[1]).includes('://')) {
-				const splits = String(val[1]).split('://');
-				if (splits.length > 1) {
-					if (!val[0] || val[0] === splits[0]) {
-						modelRef.value.android_url_raw[0] = splits[0];
-						modelRef.value.android_url_raw[1] = splits.slice(1).join('://');
-					}
-				}
-			}
-		}
-
-		function handleIosUrlUpdate(val: any) {
-			if (String(val[0]).includes('://')) {
-				const splits = String(val[0]).split('://');
-				if (splits.length > 1) {
-					modelRef.value.ios_url_raw[0] = splits[0];
-					modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
-				}
-			} else if (String(val[1]).includes('://')) {
-				const splits = String(val[1]).split('://');
-				if (splits length > 1) {
-					if (!val[0] || val[0] === splits[0]) {
-						modelRef.value.ios_url_raw[0] = splits[0];
-						modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
-					}
-				}
-			}
+			modelRef.value.url_raw = val;
 		}
 
 		return {
@@ -321,13 +218,10 @@ export default defineComponent({
 			handleGenerateSlug,
 			handleCreateLink,
 			handleUrlUpdate,
-			handleAndroidUrlUpdate,
-			handleIosUrlUpdate,
 		};
 	},
 });
 </script>
-
 
 <style scoped>
 .centered-form {
@@ -340,8 +234,8 @@ export default defineComponent({
 }
 
 .slug-input-inline {
-	width: '33%';
-	text-align: 'right';
+	width: 33%;
+	text-align: right;
 }
 
 .url-input :deep(.n-input-wrapper):first-child {
