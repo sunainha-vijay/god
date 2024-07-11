@@ -98,8 +98,8 @@ export default defineComponent({
     const linksStore = useLinksStore();
     const message = useMessage();
 
-    const now = new Date();
-    const defaultEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const now = Date.now();
+    const defaultEndDate = now + 24 * 60 * 60 * 1000;
 
     const modelRef = ref({
       url_raw: ['', ''] as [string, string],
@@ -186,8 +186,8 @@ export default defineComponent({
       }
       try {
         showLoadingSpinner.value = true;
-        const startDate = modelRef.value.start_date;
-        const endDate = modelRef.value.end_date;
+        const startDate = new Date(modelRef.value.start_date);
+        const endDate = new Date(modelRef.value.end_date);
         const { data, error } = await addLink({
           user_id: appStore.supabaseSession!.user!.id,
           url: modelRef.value.url_raw.join('://'),
@@ -215,8 +215,8 @@ export default defineComponent({
     function resetForm() {
       modelRef.value.url_raw = ['', ''];
       modelRef.value.slug = '';
-      modelRef.value.start_date = new Date();
-      modelRef.value.end_date = new Date(modelRef.value.start_date.getTime() + 24 * 60 * 60 * 1000);
+      modelRef.value.start_date = Date.now();
+      modelRef.value.end_date = modelRef.value.start_date + 24 * 60 * 60 * 1000;
     }
 
     function handleUrlUpdate(val: [string, string]) {
