@@ -310,7 +310,7 @@ export default defineComponent({
 		        title: 'ShortURL',
 		        key: 'slug',
 		        render(row: any) {
-		            const fullUrl = `https://supaflare-worker.studyyymusic.workers.dev/${row.slug}`;
+		            const fullUrl = `https://supaflare-worker.sv.workers.dev/${row.slug}`;
 		            return h(
 		                'a',
 		                {
