@@ -99,42 +99,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted, h, computed } from 'vue';
-import { fetchLinks, editLink, deleteLink } from '@/services/links';
-import {
-  useMessage,
-  useDialog,
-  NDataTable,
-  NButton,
-  NModal,
-  NSpin,
-  NForm,
-  NFormItem,
-  NInput,
-  NInputGroup,
-  NInputGroupLabel,
-  NIcon,
-  NRow,
-} from 'naive-ui';
+import { useMessage, useDialog, NDataTable, NButton, NModal, NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NIcon, NRow } from 'naive-ui';
 import { Sync } from '@vicons/fa';
 import { useLinksStore } from '@/stores/linksStore';
 import { Link } from '@/types/global';
 import { customAlphabet } from 'nanoid';
 
 export default defineComponent({
-  components: {
-    NDataTable,
-    NModal,
-    NSpin,
-    NButton,
-    NForm,
-    NFormItem,
-    NInput,
-    NInputGroup,
-    NInputGroupLabel,
-    NIcon,
-    NRow,
-    Sync,
-  },
+  components: { NDataTable, NModal, NSpin, NButton, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NIcon, NRow, Sync },
   setup() {
     const slugRef = ref();
     const messageDuration = 5000;
@@ -173,13 +145,9 @@ export default defineComponent({
         {
           required: true,
           validator(rule: any, value: any) {
-            if (!value) {
-              return new Error('URL is required');
-            } else if (value.length > 2083) {
-              return new Error('URL has to be 2083 characters or below.');
-            } else if (String(value).startsWith('://')) {
-              return new Error('Please enter a protocol.');
-            }
+            if (!value) return new Error('URL is required');
+            if (value.length > 2083) return new Error('URL has to be 2083 characters or below.');
+            if (String(value).startsWith('://')) return new Error('Please enter a protocol.');
             return true;
           },
           trigger: ['input', 'blur'],
@@ -189,12 +157,8 @@ export default defineComponent({
         {
           required: true,
           validator(rule: any, value: any) {
-            if (!value) {
-              return new Error('Slug is required');
-            }
-            if (value.length > 50) {
-              return new Error('Slug has to be 50 characters or below.');
-            }
+            if (!value) return new Error('Slug is required');
+            if (value.length > 50) return new Error('Slug has to be 50 characters or below.');
             return true;
           },
           trigger: ['input', 'blur'],
@@ -203,14 +167,9 @@ export default defineComponent({
       android_url: [
         {
           validator(rule: any, value: any) {
-            if (!value) {
-              return true;
-            }
-            if (value.length > 2083) {
-              return new Error('Android URL has to be 2083 characters or below.');
-            } else if (String(value).startsWith('://')) {
-              return new Error('Please enter a protocol.');
-            }
+            if (!value) return true;
+            if (value.length > 2083) return new Error('Android URL has to be 2083 characters or below.');
+            if (String(value).startsWith('://')) return new Error('Please enter a protocol.');
             return true;
           },
           trigger: ['input', 'blur'],
@@ -219,14 +178,9 @@ export default defineComponent({
       ios_url: [
         {
           validator(rule: any, value: any) {
-            if (!value) {
-              return true;
-            }
-            if (value.length > 2083) {
-              return new Error('iOS URL has to be 2083 characters or below.');
-            } else if (String(value).startsWith('://')) {
-              return new Error('Please enter a protocol.');
-            }
+            if (!value) return true;
+            if (value.length > 2083) return new Error('iOS URL has to be 2083 characters or below.');
+            if (String(value).startsWith('://')) return new Error('Please enter a protocol.');
             return true;
           },
           trigger: ['input', 'blur'],
@@ -296,7 +250,7 @@ export default defineComponent({
           try {
             loadingRef.value = true;
             await deleteLink(row.id);
-            links.value = links.value.filter((link) => link.id !== row.id);
+            links.value = links.value.filter(link => link.id !== row.id);
             message.success('Link has been deleted successfully', { duration: messageDuration });
           } catch (error) {
             console.log(error);
@@ -309,6 +263,7 @@ export default defineComponent({
     }
 
     async function handleEditRow(row: Link) {
+      if (!row) return;
       editRowRef.value = row;
       showEditModal.value = true;
       modelRef.value.url_raw = row.url.split('://');
@@ -338,7 +293,7 @@ export default defineComponent({
         title: 'TTL',
         key: 'ttl',
         render(row: Link) {
-          const expiryDate = new Date(row.expiryDate); // Assuming the link has an expiryDate property
+          const expiryDate = new Date(row.expiryDate || ""); // Assuming the link has an expiryDate property
           const now = new Date();
           const ttl = Math.max(0, Math.floor((expiryDate.getTime() - now.getTime()) / 1000)); // Time left in seconds
 
