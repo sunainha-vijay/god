@@ -59,7 +59,14 @@
 						@update:value="handleIosUrlUpdate"
 					></n-input>
 				</n-form-item> -->
-
+                                <n-row>
+					<n-form-item path="start_date" label="Start Date">
+						<n-date-picker v-model:value="model.start_date" type="date" placeholder="Select Start Date" />
+					</n-form-item>
+					<n-form-item path="end_date" label="End Date" style="margin-left: 20px">
+						<n-date-picker v-model:value="model.end_date" type="date" placeholder="Select End Date" />
+					</n-form-item>
+				</n-row>
 				<div style="display: flex; justify-content: center">
 					<n-button round type="primary" :disabled="showLoadingSpinner" @click="handleCreateLink">
 						<template #icon>
@@ -88,6 +95,7 @@ import {
 	NInput,
 	NInputGroup,
 	NInputGroupLabel,
+	NDatePicker,
 	NIcon,
 	NButton,
 	NRow,
@@ -96,7 +104,7 @@ import { Plus, Sync } from '@vicons/fa';
 import { customAlphabet } from 'nanoid';
 
 export default defineComponent({
-	components: { NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NIcon, NButton, NRow, Plus, Sync },
+	components: { NSpin, NForm, NFormItem, NInput, NInputGroup, NInputGroupLabel, NDatePicker, NIcon, NButton, NRow, Plus, Sync },
 	setup() {
 		const showLoadingSpinner = ref(false);
 		const formRef = ref();
@@ -112,6 +120,8 @@ export default defineComponent({
 			}),
 			url_raw: ['', ''],
 			slug: '',
+			start_date: '',
+			end_date: '',
 			android_url: computed(() => {
 				if (!modelRef.value.android_url_raw[0] && !modelRef.value.android_url_raw[1]) return '';
 				return modelRef.value.android_url_raw[0] + '://' + modelRef.value.android_url_raw[1];
@@ -154,6 +164,30 @@ export default defineComponent({
 						return true;
 					},
 					trigger: ['input', 'blur'],
+				},
+			],
+			start_date: [
+				{
+					required: true,
+					validator(rule: any, value: any) {
+						if (!value) {
+							return new Error('Start date is required');
+						}
+						return true;
+					},
+					trigger: ['change', 'blur'],
+				},
+			],
+			end_date: [
+				{
+					required: true,
+					validator(rule: any, value: any) {
+						if (!value) {
+							return new Error('End date is required');
+						}
+						return true;
+					},
+					trigger: ['change', 'blur'],
 				},
 			],
 			android_url: [
@@ -214,6 +248,8 @@ export default defineComponent({
 					user_id: appStore.supabaseSession!.user!.id,
 					url: modelRef.value.url,
 					slug: modelRef.value.slug,
+					start_date: modelRef.value.start_date,
+					end_date: modelRef.value.end_date,
 					meta: {
 						android_url: modelRef.value.android_url,
 						ios_url: modelRef.value.ios_url,
@@ -238,6 +274,8 @@ export default defineComponent({
 		function resetForm() {
 			modelRef.value.url_raw = ['', ''];
 			modelRef.value.slug = '';
+			modelRef.value.start_date = '';
+			modelRef.value.end_date = '';
 			modelRef.value.android_url_raw = ['', ''];
 			modelRef.value.ios_url_raw = ['', ''];
 		}
