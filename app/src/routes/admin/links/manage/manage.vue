@@ -287,7 +287,7 @@ export default defineComponent({
     }
 
     async function handleDeleteRow(row: Link) {
-      const message = dialog.warning({
+      const warningDialog = dialog.warning({
         title: 'Delete Link',
         content: `Are you sure you want to delete this link "${row.url}"?`,
         positiveText: 'Delete',
@@ -297,7 +297,6 @@ export default defineComponent({
             loadingRef.value = true;
             await deleteLink(row.id);
             links.value = links.value.filter((link) => link.id !== row.id);
-            message.destroy();
             message.success('Link has been deleted successfully', { duration: messageDuration });
           } catch (error) {
             console.log(error);
@@ -318,7 +317,7 @@ export default defineComponent({
       modelRef.value.ios_url_raw = row.meta?.ios_url ? row.meta.ios_url.split('://') : ['', ''];
     }
 
-    const rowKey = (row: Link) => row.id;
+    const rowKey = (row: Link) => row.id as string;
 
     const columns = [
       {
@@ -407,6 +406,17 @@ export default defineComponent({
       handleGenerateSlug,
       handleEditRow,
       handleDeleteRow,
+      pagination: reactive({
+        page: 1,
+        pageSize: 10,
+        showSizePicker: true,
+        pageSizes: [10, 20, 30, 40],
+        itemCount: links.value.length,
+      }),
+      handleUrlUpdate,
+      handleAndroidUrlUpdate,
+      handleIosUrlUpdate,
+      fetchLinks: linksStore.fetchLinks,
     };
   },
 });
