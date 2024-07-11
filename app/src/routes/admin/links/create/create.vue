@@ -35,10 +35,10 @@
 				</n-row>
 				<n-row>
 					<n-form-item path="start_date" label="Start Date">
-						<n-date-picker v-model:value="model.start_date" type="date" placeholder="Select Start Date" />
+						<n-date-picker v-model:value="model.start_date" type="datetime" placeholder="Select Start Date" />
 					</n-form-item>
 					<n-form-item path="end_date" label="End Date" style="margin-left: 20px">
-						<n-date-picker v-model:value="model.end_date" type="date" placeholder="Select End Date" />
+						<n-date-picker v-model:value="model.end_date" type="datetime" placeholder="Select End Date" />
 					</n-form-item>
 				</n-row>
 				<div style="display: flex; justify-content: center">
@@ -55,7 +55,6 @@
 		</n-spin>
 	</admin-view>
 </template>
-
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
@@ -88,6 +87,10 @@ export default defineComponent({
 		const appStore = useAppStore();
 		const linksStore = useLinksStore();
 		const message = useMessage();
+		
+		const now = new Date();
+		const defaultEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
 		const modelRef: any = ref({
 			url: computed(() => {
 				if (!modelRef.value.url_raw[0] && !modelRef.value.url_raw[1]) return '';
@@ -95,8 +98,8 @@ export default defineComponent({
 			}),
 			url_raw: ['', ''],
 			slug: '',
-			start_date: '',
-			end_date: '',
+			start_date: now,
+			end_date: defaultEndDate,
 			android_url: computed(() => {
 				if (!modelRef.value.android_url_raw[0] && !modelRef.value.android_url_raw[1]) return '';
 				return modelRef.value.android_url_raw[0] + '://' + modelRef.value.android_url_raw[1];
@@ -249,8 +252,8 @@ export default defineComponent({
 		function resetForm() {
 			modelRef.value.url_raw = ['', ''];
 			modelRef.value.slug = '';
-			modelRef.value.start_date = '';
-			modelRef.value.end_date = '';
+			modelRef.value.start_date = new Date();
+			modelRef.value.end_date = new Date(modelRef.value.start_date.getTime() + 24 * 60 * 60 * 1000);
 			modelRef.value.android_url_raw = ['', ''];
 			modelRef.value.ios_url_raw = ['', ''];
 		}
@@ -300,7 +303,7 @@ export default defineComponent({
 				}
 			} else if (String(val[1]).includes('://')) {
 				const splits = String(val[1]).split('://');
-				if (splits.length > 1) {
+				if (splits length > 1) {
 					if (!val[0] || val[0] === splits[0]) {
 						modelRef.value.ios_url_raw[0] = splits[0];
 						modelRef.value.ios_url_raw[1] = splits.slice(1).join('://');
