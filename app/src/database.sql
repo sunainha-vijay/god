@@ -1,16 +1,19 @@
-create table links (
-    id uuid default uuid_generate_v4() primary key,
-    user_id uuid references auth.users not null,
-    url text check (char_length(url) <= 2083) not null,
-    slug varchar(50) check (char_length(url) > 0) unique not null,
-    meta json default '{}' not null,
-    updated_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    inserted_at timestamp with time zone default timezone('utc' :: text, now()) not null
+CREATE TABLE links (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users NOT NULL,
+    url TEXT CHECK (char_length(url) <= 2083) NOT NULL,
+    slug VARCHAR(50) CHECK (char_length(url) > 0) UNIQUE NOT NULL,
+    meta JSON DEFAULT '{}' NOT NULL,
+    start_date TIMESTAMPTZ DEFAULT timezone('utc', now()) NOT NULL,
+    end_date TIMESTAMPTZ DEFAULT timezone('utc', now() + interval '24 hour') NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc', now()) NOT NULL,
+    inserted_at TIMESTAMPTZ DEFAULT timezone('utc', now()) NOT NULL
 );
 
-alter table
-    links enable row level security;
+ALTER TABLE links ENABLE ROW LEVEL SECURITY;
 
+-- Policies remain unchanged
+-- Functions and triggers remain unchanged
 create policy "Users can create their own links." on links for
 insert
     with check (auth.uid() = user_id);
